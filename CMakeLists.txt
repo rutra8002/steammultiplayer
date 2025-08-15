@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 26)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
 
-set(STEAM_SDK_LOCATION ${CMAKE_SOURCE_DIR}/sdk)
+set(STEAM_SDK_LOCATION ${CMAKE_SOURCE_DIR}/steamworks_sdk)
 set(RAYLIB_DIR ${CMAKE_SOURCE_DIR}/raylib)
 find_package(Steamworks REQUIRED)
 find_package(Raylib REQUIRED)

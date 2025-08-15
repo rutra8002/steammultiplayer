@@ -12,14 +12,14 @@ find_path(STEAMWORKS_INCLUDE_DIRS
         HINTS
             ENV STEAM_SDK_LOCATION
             "${CMAKE_SOURCE_DIR}"
-        PATH_SUFFIXES sdk/public)
+        PATH_SUFFIXES steamworks_sdk/public)
 
 find_library(STEAMWORKS_LIBRARIES
         NAMES steam_api
         HINTS
             ENV STEAM_SDK_LOCATION
             "${CMAKE_SOURCE_DIR}"
-        PATH_SUFFIXES sdk/redistributable_bin/linux64)
+        PATH_SUFFIXES steamworks_sdk/redistributable_bin/linux64)
 
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(Steamworks DEFAULT_MSG STEAMWORKS_LIBRARIES STEAMWORKS_INCLUDE_DIRS)
