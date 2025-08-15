@@ -5,11 +5,14 @@ set(CMAKE_CXX_STANDARD 26)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
 
+set(STEAM_SDK_LOCATION ${CMAKE_SOURCE_DIR}/sdk)
+set(RAYLIB_DIR ${CMAKE_SOURCE_DIR}/raylib)
 find_package(Steamworks REQUIRED)
+find_package(Raylib REQUIRED)
 
 add_executable(steammultiplayer main.cpp)
 
 file(COPY ${CMAKE_SOURCE_DIR}/steam_appid.txt DESTINATION ${CMAKE_BINARY_DIR})
 
-target_include_directories(steammultiplayer PRIVATE ${STEAMWORKS_INCLUDE_DIRS})
-target_link_libraries(steammultiplayer PRIVATE ${STEAMWORKS_LIBRARIES})
+target_include_directories(steammultiplayer PRIVATE ${STEAMWORKS_INCLUDE_DIRS} ${RAYLIB_INCLUDE_DIRS})
+target_link_libraries(steammultiplayer PRIVATE ${STEAMWORKS_LIBRARIES} ${RAYLIB_LIBRARIES})
