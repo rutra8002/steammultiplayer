@@ -12,8 +12,8 @@ find_package(Raylib REQUIRED)
 
 add_executable(steammultiplayer
     main.cpp
-    Game.cpp
-    Player.cpp
+        src/Game.cpp
+        src/Player.cpp
 )
 
 file(COPY ${CMAKE_SOURCE_DIR}/steam_appid.txt DESTINATION ${CMAKE_BINARY_DIR})
