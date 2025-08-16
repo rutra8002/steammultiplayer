@@ -1,6 +1,14 @@
 #pragma once
 #include <string>
-#include "Player.h"
+#include <memory>
+#include "Scene.h"
+#include "MainMenuScene.h"
+#include "GameScene.h"
+
+enum class SceneType {
+    MAIN_MENU,
+    GAME
+};
 
 class Game {
 public:
@@ -11,6 +19,8 @@ public:
     void Run();
     void Shutdown();
 
+    void ChangeScene(SceneType sceneType);
+
 private:
     int screenWidth_;
     int screenHeight_;
@@ -19,6 +29,6 @@ private:
     bool steamInitialized_ = false;
     std::string steamName_ = "Player";
 
-    Player player_;
+    std::unique_ptr<Scene> currentScene_;
+    SceneType currentSceneType_;
 };
-
