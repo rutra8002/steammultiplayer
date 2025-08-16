@@ -1,9 +1,9 @@
 #pragma once
 #include <string>
 #include <memory>
-#include "Scene.h"
-#include "MainMenuScene.h"
-#include "GameScene.h"
+#include "scenes/Scene.h"
+#include "scenes/MainMenuScene.h"
+#include "scenes/GameScene.h"
 
 enum class SceneType {
     MAIN_MENU,
