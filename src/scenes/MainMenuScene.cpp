@@ -21,7 +21,7 @@ void MainMenuScene::Initialize() {
     startGame_ = false;
     quit_ = false;
     if (lobby_) {
-        lobby_->RequestLobbyList(20);
+        lobby_->RequestLobbyList();
     }
 }
 
@@ -39,7 +39,7 @@ void MainMenuScene::Update() {
         lobby_->HostLobby(4);
     }
     if (refreshButton.IsClicked() && lobby_) {
-        lobby_->RequestLobbyList(20);
+        lobby_->RequestLobbyList();
     }
     if (joinFirstButton.IsClicked() && lobby_) {
         const auto& list = lobby_->GetLobbies();
@@ -66,8 +66,6 @@ void MainMenuScene::Draw() const {
     std::string nameLine = std::string("Signed in as: ") + playerName_;
     DrawText(nameLine.c_str(), 10, 10, nameSize, DARKGRAY);
 
-    // Verification info
-    DrawText("Lobbies are tagged to this game and filtered (appid 480 safe)", 10, 35, 16, GRAY);
 
     hostButton.Draw();
     refreshButton.Draw();
@@ -86,18 +84,9 @@ void MainMenuScene::Draw() const {
             for (size_t i = 0; i < list.size() && i < 6; ++i) {
                 const auto& L = list[i];
                 char line[256];
-                std::snprintf(line, sizeof(line), "#%zu  %s  (%d/%d)  [%s]", i + 1, L.name.c_str(), L.members, L.capacity, L.build.c_str());
+                std::snprintf(line, sizeof(line), "#%zu  %s  (%d/%d)", i + 1, L.name.c_str(), L.members, L.capacity);
                 DrawText(line, 20, y + int(i) * 22, 18, BLACK);
             }
-        }
-
-        // Status / error
-        std::string status = lobby_->GetStatus();
-        if (!status.empty()) {
-            DrawText(status.c_str(), 20, screenHeight_ - 50, 18, DARKGREEN);
-        }
-        if (auto err = lobby_->GetLastError()) {
-            DrawText(err->c_str(), 20, screenHeight_ - 28, 18, RED);
         }
     }
 }
