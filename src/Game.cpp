@@ -35,15 +35,23 @@ bool Game::Init() {
 }
 
 void Game::Run() {
-    SetTargetFPS(60);
-
     bool shouldQuit = false;
     while (!WindowShouldClose() && !shouldQuit) {
+        // Set FPS based on current scene
+        if (currentSceneType_ == SceneType::GAME) {
+            SetTargetFPS(0); // Unlimited FPS for gameplay
+        } else {
+            SetTargetFPS(60); // Limited FPS for menus
+        }
+
+        // Get delta time for frame-rate independent updates
+        float deltaTime = GetFrameTime();
+
         if (steamInitialized_) {
             SteamAPI_RunCallbacks();
         }
 
-        currentScene_->Update();
+        currentScene_->Update(deltaTime);
 
         if (currentSceneType_ == SceneType::MAIN_MENU) {
             MainMenuScene* mainMenu = static_cast<MainMenuScene*>(currentScene_.get());

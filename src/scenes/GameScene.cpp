@@ -102,8 +102,8 @@ void GameScene::RemoveDisconnectedPlayers() {
     }
 }
 
-void GameScene::Update() {
-    player_.Update();
+void GameScene::Update(float deltaTime) {
+    player_.Update(deltaTime);
     SendPlayerPosition();
     ReceivePlayerPositions();
 
@@ -121,7 +121,7 @@ void GameScene::Draw() const {
         player.Draw();
     }
 
-    DrawText("Game Scene - Move with WASD", 10, 10, 20, BLACK);
+    DrawFPS(10, 10);
 }
 
 void GameScene::Unload() {

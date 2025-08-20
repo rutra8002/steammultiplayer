@@ -25,7 +25,7 @@ void MainMenuScene::Initialize() {
     }
 }
 
-void MainMenuScene::Update() {
+void MainMenuScene::Update(float deltaTime) {
     quitButton.Update();
     hostButton.Update();
     refreshButton.Update();

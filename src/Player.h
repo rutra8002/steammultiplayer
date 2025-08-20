@@ -7,7 +7,7 @@ public:
     Player();
     Player(float x, float y, float w, float h, const std::string &name);
 
-    void Update();
+    void Update(float deltaTime);
     void Draw() const;
 
     const Rectangle &GetRect() const { return rect_; }
@@ -18,4 +18,3 @@ private:
     Rectangle rect_{};
     std::string name_;
 };
-

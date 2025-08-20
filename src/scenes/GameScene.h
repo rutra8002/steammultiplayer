@@ -12,7 +12,7 @@ public:
     ~GameScene() override = default;
 
     void Initialize() override;
-    void Update() override;
+    void Update(float deltaTime) override;
     void Draw() const override;
     void Unload() override;
 
