@@ -2,10 +2,12 @@
 #include "Scene.h"
 #include "../gui/Button.h"
 #include <memory>
+#include <string>
+#include "../steam/LobbyManager.h"
 
 class MainMenuScene : public Scene {
 public:
-    MainMenuScene(int screenWidth, int screenHeight);
+    MainMenuScene(int screenWidth, int screenHeight, const std::string& playerName, LobbyManager* lobby);
     ~MainMenuScene() override = default;
 
     void Initialize() override;
@@ -17,10 +19,15 @@ public:
     bool ShouldQuit() const;
 
 private:
-    Button playButton;
     Button quitButton;
+    Button hostButton;
+    Button refreshButton;
+    Button joinFirstButton;
     int screenWidth_;
     int screenHeight_;
     bool startGame_;
     bool quit_;
+
+    std::string playerName_;
+    LobbyManager* lobby_;
 };

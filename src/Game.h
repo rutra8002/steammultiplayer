@@ -4,6 +4,7 @@
 #include "scenes/Scene.h"
 #include "scenes/MainMenuScene.h"
 #include "scenes/GameScene.h"
+#include "steam/LobbyManager.h"
 
 enum class SceneType {
     MAIN_MENU,
@@ -28,6 +29,8 @@ private:
 
     bool steamInitialized_ = false;
     std::string steamName_ = "Player";
+
+    std::unique_ptr<LobbyManager> lobbyMgr_;
 
     std::unique_ptr<Scene> currentScene_;
     SceneType currentSceneType_;

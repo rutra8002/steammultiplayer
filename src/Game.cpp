@@ -23,6 +23,8 @@ bool Game::Init() {
         return false;
     }
 
+    lobbyMgr_ = std::make_unique<LobbyManager>(steamName_);
+
     InitWindow(screenWidth_, screenHeight_, title_.c_str());
 
     SetExitKey(KEY_NULL);
@@ -55,6 +57,7 @@ void Game::Run() {
         }
 
         if (currentSceneType_ == SceneType::GAME && IsKeyPressed(KEY_ESCAPE)) {
+            if (lobbyMgr_) lobbyMgr_->LeaveLobby();
             ChangeScene(SceneType::MAIN_MENU);
         }
 
@@ -68,6 +71,10 @@ void Game::Shutdown() {
     if (currentScene_) {
         currentScene_->Unload();
         currentScene_.reset();
+    }
+
+    if (lobbyMgr_ && lobbyMgr_->IsInLobby()) {
+        lobbyMgr_->LeaveLobby();
     }
 
     if (IsWindowReady()) {
@@ -88,10 +95,10 @@ void Game::ChangeScene(SceneType sceneType) {
     // Create new scene
     switch (sceneType) {
         case SceneType::MAIN_MENU:
-            currentScene_ = std::make_unique<MainMenuScene>(screenWidth_, screenHeight_);
+            currentScene_ = std::make_unique<MainMenuScene>(screenWidth_, screenHeight_, steamName_, lobbyMgr_.get());
             break;
         case SceneType::GAME:
-            currentScene_ = std::make_unique<GameScene>(screenWidth_, screenHeight_, steamName_);
+            currentScene_ = std::make_unique<GameScene>(screenWidth_, screenHeight_, steamName_, lobbyMgr_.get());
             break;
     }
 
