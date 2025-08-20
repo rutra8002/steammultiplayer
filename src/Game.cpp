@@ -36,12 +36,17 @@ bool Game::Init() {
 
 void Game::Run() {
     bool shouldQuit = false;
+    SceneType lastSceneType = SceneType::MAIN_MENU;
+
     while (!WindowShouldClose() && !shouldQuit) {
-        // Set FPS based on current scene
-        if (currentSceneType_ == SceneType::GAME) {
-            SetTargetFPS(0); // Unlimited FPS for gameplay
-        } else {
-            SetTargetFPS(60); // Limited FPS for menus
+        // Only set FPS when scene type changes
+        if (currentSceneType_ != lastSceneType) {
+            if (currentSceneType_ == SceneType::GAME) {
+                SetTargetFPS(0); // Unlimited FPS for gameplay
+            } else {
+                SetTargetFPS(60); // Limited FPS for menus
+            }
+            lastSceneType = currentSceneType_;
         }
 
         // Get delta time for frame-rate independent updates
