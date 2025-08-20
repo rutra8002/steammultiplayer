@@ -51,10 +51,19 @@ void GameScene::ReceivePlayerPositions() {
             memcpy(&playerMsg, msg->m_pData, sizeof(PlayerMessage));
 
             uint64 senderId = msg->m_identityPeer.GetSteamID().ConvertToUint64();
+            CSteamID senderSteamID = msg->m_identityPeer.GetSteamID();
 
             // Create or update remote player
             if (others_.find(senderId) == others_.end()) {
-                others_[senderId] = Player(playerMsg.x, playerMsg.y, 50, 50, "Remote Player");
+                // Get the player's actual Steam name
+                std::string playerName = "Remote Player"; // fallback
+                if (SteamFriends()) {
+                    const char* steamName = SteamFriends()->GetFriendPersonaName(senderSteamID);
+                    if (steamName && strlen(steamName) > 0) {
+                        playerName = steamName;
+                    }
+                }
+                others_[senderId] = Player(playerMsg.x, playerMsg.y, 50, 50, playerName);
             } else {
                 others_[senderId].SetPosition(playerMsg.x, playerMsg.y);
             }
