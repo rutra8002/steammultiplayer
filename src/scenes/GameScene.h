@@ -23,15 +23,10 @@ private:
     Player player_;
 
     LobbyManager* lobby_;
-    CSteamID localId_;
 
-    // steam networking (messages)
-    STEAM_CALLBACK(GameScene, OnMsgSessionRequest, SteamNetworkingMessagesSessionRequest_t, cbSessionRequest_);
-
-    // remote players by steamID64
+    // Simple remote players map
     std::unordered_map<uint64, Player> others_;
 
-    void RefreshLobbyMembers();
-    void SendMyState();
-    void ReceiveMessages();
+    void SendPlayerPosition();
+    void ReceivePlayerPositions();
 };
