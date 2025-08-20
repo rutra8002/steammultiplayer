@@ -1,6 +1,7 @@
 #include "GameScene.h"
 #include "raylib.h"
 #include <cstring>
+#include <unordered_set>
 
 // Simple message structure for player position
 struct PlayerMessage {
@@ -73,10 +74,40 @@ void GameScene::ReceivePlayerPositions() {
     }
 }
 
+void GameScene::RemoveDisconnectedPlayers() {
+    if (!lobby_ || !lobby_->IsInLobby() || !SteamMatchmaking()) return;
+
+    // Get current lobby members
+    CSteamID lobbyId = lobby_->CurrentLobby();
+    int memberCount = SteamMatchmaking()->GetNumLobbyMembers(lobbyId);
+
+    // Build set of current lobby member IDs
+    std::unordered_set<uint64> currentMembers;
+    for (int i = 0; i < memberCount; ++i) {
+        CSteamID member = SteamMatchmaking()->GetLobbyMemberByIndex(lobbyId, i);
+        if (member != SteamUser()->GetSteamID()) {
+            currentMembers.insert(member.ConvertToUint64());
+        }
+    }
+
+    // Remove players who are no longer in the lobby
+    auto it = others_.begin();
+    while (it != others_.end()) {
+        uint64 playerId = it->first;
+        if (currentMembers.find(playerId) == currentMembers.end()) {
+            it = others_.erase(it);
+        } else {
+            ++it;
+        }
+    }
+}
+
 void GameScene::Update() {
     player_.Update();
     SendPlayerPosition();
     ReceivePlayerPositions();
+
+    RemoveDisconnectedPlayers();
 }
 
 void GameScene::Draw() const {
@@ -90,7 +121,7 @@ void GameScene::Draw() const {
         player.Draw();
     }
 
-    DrawText("Game Scene - ESC leaves lobby", 10, 10, 20, BLACK);
+    DrawText("Game Scene - Move with WASD", 10, 10, 20, BLACK);
 }
 
 void GameScene::Unload() {

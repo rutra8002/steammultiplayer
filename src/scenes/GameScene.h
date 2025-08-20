@@ -29,4 +29,5 @@ private:
 
     void SendPlayerPosition();
     void ReceivePlayerPositions();
+    void RemoveDisconnectedPlayers();
 };
