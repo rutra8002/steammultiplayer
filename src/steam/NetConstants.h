@@ -5,6 +5,4 @@ namespace NetConstants {
     inline constexpr const char* LOBBY_SIGN_KEY = "app_tag"; // metadata key
     inline constexpr const char* LOBBY_SIGN_VALUE = "ruterek"; // unique value
     inline constexpr const char* LOBBY_NAME_KEY = "name"; // display title in list
-    inline constexpr const char* LOBBY_BUILD_KEY = "build"; // optional build marker
 }
-
