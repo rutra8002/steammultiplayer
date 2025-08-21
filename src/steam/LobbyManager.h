@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include "steam/steam_api.h"
+#include "NetConstants.h"
 
 struct LobbyInfo {
     CSteamID id;
@@ -25,10 +26,9 @@ public:
     void LeaveLobby();
 
     // State queries
-    [[nodiscard]] bool IsInLobby() const { return inLobby_; }
-    [[nodiscard]] CSteamID CurrentLobby() const { return currentLobby_; }
-    [[nodiscard]] const std::vector<LobbyInfo>& GetLobbies() const { return lobbies_; }
-    [[nodiscard]] bool IsHost() const;
+    bool IsInLobby() const { return inLobby_; }
+    CSteamID CurrentLobby() const { return currentLobby_; }
+    const std::vector<LobbyInfo>& GetLobbies() const { return lobbies_; }
 
 private:
     // Simple callbacks for async Steam APIs
@@ -41,7 +41,7 @@ private:
     void OnLobbyEnter(LobbyEnter_t* pCallback, bool bIOFailure);
 
     // Simple verification helper
-    [[nodiscard]] bool IsOurLobby(CSteamID lobbyId) const;
+    bool IsOurLobby(CSteamID lobbyId) const;
 
 private:
     std::string playerName_;

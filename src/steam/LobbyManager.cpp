@@ -1,5 +1,4 @@
 #include "LobbyManager.h"
-#include "NetConstants.h"
 
 LobbyManager::LobbyManager(const std::string& playerName)
     : playerName_(playerName) {}
@@ -94,11 +93,4 @@ bool LobbyManager::IsOurLobby(CSteamID lobbyId) const {
 
     const char* lobbyTag = SteamMatchmaking()->GetLobbyData(lobbyId, NetConstants::LOBBY_SIGN_KEY);
     return lobbyTag && std::string(lobbyTag) == NetConstants::LOBBY_SIGN_VALUE;
-}
-
-bool LobbyManager::IsHost() const {
-    if (!inLobby_ || !SteamMatchmaking()) return false;
-
-    CSteamID hostId = SteamMatchmaking()->GetLobbyOwner(currentLobby_);
-    return hostId == SteamUser()->GetSteamID();
 }
