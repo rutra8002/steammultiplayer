@@ -104,10 +104,20 @@ void GameScene::RemoveDisconnectedPlayers() {
 
 void GameScene::Update(float deltaTime) {
     player_.Update(deltaTime);
-    SendPlayerPosition();
+
     ReceivePlayerPositions();
 
-    RemoveDisconnectedPlayers();
+    networkTimer_ += deltaTime;
+    if (networkTimer_ >= NETWORK_UPDATE_RATE) {
+        SendPlayerPosition();
+        networkTimer_ = 0.0f;
+    }
+
+    disconnectionTimer_ += deltaTime;
+    if (disconnectionTimer_ >= DISCONNECTION_CHECK_RATE) {
+        RemoveDisconnectedPlayers();
+        disconnectionTimer_ = 0.0f;
+    }
 }
 
 void GameScene::Draw() const {
