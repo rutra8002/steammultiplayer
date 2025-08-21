@@ -27,13 +27,21 @@ private:
     // Remote players
     std::unordered_map<uint64, Player> others_;
 
+    // Host-authoritative movement data
+    std::unordered_map<uint64, InputState> clientInputs_; // Host stores all client inputs
+
     // Network timing
     float networkTimer_ = 0.0f;
     float disconnectionTimer_ = 0.0f;
     static constexpr float NETWORK_UPDATE_RATE = 1.0f / 60.0f; // 60 updates per second max
     static constexpr float DISCONNECTION_CHECK_RATE = 1.0f; // Check once per second
 
-    void SendPlayerPosition();
-    void ReceivePlayerPositions();
-    void RemoveDisconnectedPlayers();
+    // Host-authoritative networking methods
+    void SendInputToHost();           // Client sends input to host
+    void SendPositionUpdates();       // Host sends position updates to clients
+    void SendGameState();             // Host sends full game state
+    void ReceiveNetworkMessages();    // Process all network messages
+    void UpdateAsHost(float deltaTime);    // Host game logic
+    void UpdateAsClient(float deltaTime);  // Client game logic
+    void RemoveDisconnectedPlayers(); // Clean up disconnected players
 };
