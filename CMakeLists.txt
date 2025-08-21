@@ -15,9 +15,10 @@ add_executable(steammultiplayer
     src/Game.cpp
     src/Player.cpp
     src/gui/Button.cpp
-        src/scenes/MainMenuScene.cpp
-        src/scenes/GameScene.cpp
-        src/steam/LobbyManager.cpp
+    src/scenes/MainMenuScene.cpp
+    src/scenes/GameScene.cpp
+    src/steam/LobbyManager.cpp
+    src/steam/NetworkingManager.cpp
 )
 
 file(COPY ${CMAKE_SOURCE_DIR}/steam_appid.txt DESTINATION ${CMAKE_BINARY_DIR})
