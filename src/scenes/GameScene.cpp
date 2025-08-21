@@ -2,11 +2,40 @@
 #include "raylib.h"
 #include <cstring>
 #include <unordered_set>
+#include <algorithm>
+#include <vector>
 
 // Simple message structure for player position
 struct PlayerMessage {
     float x, y;
 };
+
+std::string GetSteamPlayerName(CSteamID steamID) {
+    if (!SteamFriends()) return "Remote Player";
+
+    const char* steamName = SteamFriends()->GetFriendPersonaName(steamID);
+    return (steamName && strlen(steamName) > 0) ? steamName : "Remote Player";
+}
+
+bool IsSteamNetworkingAvailable(LobbyManager* lobby) {
+    return lobby && lobby->IsInLobby() && SteamNetworkingMessages();
+}
+
+std::vector<CSteamID> GetOtherLobbyMembers(LobbyManager* lobby) {
+    std::vector<CSteamID> members;
+    if (!lobby || !lobby->IsInLobby() || !SteamMatchmaking()) return members;
+
+    CSteamID lobbyId = lobby->CurrentLobby();
+    int memberCount = SteamMatchmaking()->GetNumLobbyMembers(lobbyId);
+
+    for (int i = 0; i < memberCount; ++i) {
+        CSteamID member = SteamMatchmaking()->GetLobbyMemberByIndex(lobbyId, i);
+        if (member != SteamUser()->GetSteamID()) {
+            members.push_back(member);
+        }
+    }
+    return members;
+}
 
 GameScene::GameScene(int screenWidth, int screenHeight, const std::string& playerName, LobbyManager* lobby)
     : screenWidth_(screenWidth), screenHeight_(screenHeight), playerName_(playerName), lobby_(lobby) {}
@@ -19,22 +48,15 @@ void GameScene::Initialize() {
 }
 
 void GameScene::SendPlayerPosition() {
-    if (!lobby_ || !lobby_->IsInLobby() || !SteamNetworkingMessages()) return;
+    if (!IsSteamNetworkingAvailable(lobby_)) return;
 
     PlayerMessage msg{player_.GetRect().x, player_.GetRect().y};
 
-    // Send to all lobby members (Steam handles the routing)
-    CSteamID lobbyId = lobby_->CurrentLobby();
-    int memberCount = SteamMatchmaking()->GetNumLobbyMembers(lobbyId);
-
-    for (int i = 0; i < memberCount; ++i) {
-        CSteamID member = SteamMatchmaking()->GetLobbyMemberByIndex(lobbyId, i);
-        if (member != SteamUser()->GetSteamID()) {
-            SteamNetworkingIdentity identity;
-            identity.SetSteamID(member);
-            SteamNetworkingMessages()->SendMessageToUser(identity, &msg, sizeof(msg),
-                                                       k_nSteamNetworkingSend_Unreliable, 0);
-        }
+    for (const CSteamID& member : GetOtherLobbyMembers(lobby_)) {
+        SteamNetworkingIdentity identity;
+        identity.SetSteamID(member);
+        SteamNetworkingMessages()->SendMessageToUser(identity, &msg, sizeof(msg),
+                                                   k_nSteamNetworkingSend_Unreliable, 0);
     }
 }
 
@@ -51,20 +73,12 @@ void GameScene::ReceivePlayerPositions() {
             PlayerMessage playerMsg;
             memcpy(&playerMsg, msg->m_pData, sizeof(PlayerMessage));
 
-            uint64 senderId = msg->m_identityPeer.GetSteamID().ConvertToUint64();
             CSteamID senderSteamID = msg->m_identityPeer.GetSteamID();
+            uint64 senderId = senderSteamID.ConvertToUint64();
 
             // Create or update remote player
             if (others_.find(senderId) == others_.end()) {
-                // Get the player's actual Steam name
-                std::string playerName = "Remote Player"; // fallback
-                if (SteamFriends()) {
-                    const char* steamName = SteamFriends()->GetFriendPersonaName(senderSteamID);
-                    if (steamName && strlen(steamName) > 0) {
-                        playerName = steamName;
-                    }
-                }
-                others_[senderId] = Player(playerMsg.x, playerMsg.y, 50, 50, playerName);
+                others_[senderId] = Player(playerMsg.x, playerMsg.y, 50, 50, GetSteamPlayerName(senderSteamID));
             } else {
                 others_[senderId].SetPosition(playerMsg.x, playerMsg.y);
             }
@@ -75,31 +89,18 @@ void GameScene::ReceivePlayerPositions() {
 }
 
 void GameScene::RemoveDisconnectedPlayers() {
-    if (!lobby_ || !lobby_->IsInLobby() || !SteamMatchmaking()) return;
+    if (!IsSteamNetworkingAvailable(lobby_)) return;
 
-    // Get current lobby members
-    CSteamID lobbyId = lobby_->CurrentLobby();
-    int memberCount = SteamMatchmaking()->GetNumLobbyMembers(lobbyId);
-
-    // Build set of current lobby member IDs
+    // Get current lobby member IDs
     std::unordered_set<uint64> currentMembers;
-    for (int i = 0; i < memberCount; ++i) {
-        CSteamID member = SteamMatchmaking()->GetLobbyMemberByIndex(lobbyId, i);
-        if (member != SteamUser()->GetSteamID()) {
-            currentMembers.insert(member.ConvertToUint64());
-        }
+    for (const CSteamID& member : GetOtherLobbyMembers(lobby_)) {
+        currentMembers.insert(member.ConvertToUint64());
     }
 
     // Remove players who are no longer in the lobby
-    auto it = others_.begin();
-    while (it != others_.end()) {
-        uint64 playerId = it->first;
-        if (currentMembers.find(playerId) == currentMembers.end()) {
-            it = others_.erase(it);
-        } else {
-            ++it;
-        }
-    }
+    std::erase_if(others_, [&currentMembers](const auto& pair) {
+        return currentMembers.find(pair.first) == currentMembers.end();
+    });
 }
 
 void GameScene::Update(float deltaTime) {
