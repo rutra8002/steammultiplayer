@@ -133,13 +133,6 @@ void GameScene::UpdateAsHost(float deltaTime) {
         SendPositionUpdates();
         networkTimer_ = 0.0f;
     }
-
-    // Send full game state occasionally to ensure all clients are in sync
-    gameStateTimer_ += deltaTime;
-    if (gameStateTimer_ >= GAME_STATE_SYNC_RATE) {
-        SendGameState();
-        gameStateTimer_ = 0.0f;
-    }
 }
 
 void GameScene::UpdateAsClient(float deltaTime) {
@@ -295,27 +288,7 @@ void GameScene::ReceiveNetworkMessages() {
                     if (lobby_ && lobby_->IsHost() && msg->m_cbSize == sizeof(InputMessage)) {
                         auto* inputMsg = (InputMessage*)msg->m_pData;
                         uint64 senderId = msg->m_identityPeer.GetSteamID().ConvertToUint64();
-
-                        // Store the input
                         clientInputs_[senderId] = inputMsg->input;
-
-                        // Create player if they don't exist yet
-                        if (others_.find(senderId) == others_.end()) {
-                            CSteamID senderSteamID = msg->m_identityPeer.GetSteamID();
-                            std::string playerName = "Remote Player";
-
-                            if (SteamFriends()) {
-                                const char* steamName = SteamFriends()->GetFriendPersonaName(senderSteamID);
-                                if (steamName && strlen(steamName) > 0) {
-                                    playerName = steamName;
-                                }
-                            }
-
-                            // Start new players at center of screen
-                            float startX = static_cast<float>(screenWidth_) / 2.0f;
-                            float startY = static_cast<float>(screenHeight_) / 2.0f;
-                            others_[senderId] = Player(startX, startY, 50, 50, playerName);
-                        }
                     }
                     break;
                 }

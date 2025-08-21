@@ -33,10 +33,8 @@ private:
     // Network timing
     float networkTimer_ = 0.0f;
     float disconnectionTimer_ = 0.0f;
-    float gameStateTimer_ = 0.0f;
     static constexpr float NETWORK_UPDATE_RATE = 1.0f / 60.0f; // 60 updates per second max
     static constexpr float DISCONNECTION_CHECK_RATE = 1.0f; // Check once per second
-    static constexpr float GAME_STATE_SYNC_RATE = 2.0f; // Send full game state every 2 seconds
 
     // Host-authoritative networking methods
     void SendInputToHost();           // Client sends input to host
